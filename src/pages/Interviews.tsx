@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -17,6 +19,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { 
   Search, 
   Filter, 
@@ -29,7 +38,8 @@ import {
   CheckCircle,
   XCircle,
   AlertCircle,
-  PlayCircle
+  PlayCircle,
+  Plus
 } from "lucide-react";
 
 const interviews = [
@@ -128,6 +138,20 @@ const interviews = [
 export default function Interviews() {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
+  const [companyFilter, setCompanyFilter] = useState("all");
+  const [scheduleInterviewOpen, setScheduleInterviewOpen] = useState(false);
+  const [newInterview, setNewInterview] = useState({
+    studentName: "",
+    companyName: "",
+    position: "",
+    date: "",
+    time: "",
+    duration: "60",
+    mode: "",
+    interviewer: "",
+    location: "",
+    notes: ""
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -155,9 +179,29 @@ export default function Interviews() {
       interview.position.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || interview.status === statusFilter;
+    const matchesCompany = companyFilter === "all" || interview.companyName === companyFilter;
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesCompany;
   });
+
+  const handleScheduleInterview = () => {
+    if (newInterview.studentName && newInterview.companyName && newInterview.date) {
+      console.log("Scheduling interview:", newInterview);
+      setScheduleInterviewOpen(false);
+      setNewInterview({
+        studentName: "",
+        companyName: "",
+        position: "",
+        date: "",
+        time: "",
+        duration: "60",
+        mode: "",
+        interviewer: "",
+        location: "",
+        notes: ""
+      });
+    }
+  };
 
   const todayInterviews = interviews.filter(interview => interview.date === "2024-01-15");
 
@@ -173,10 +217,132 @@ export default function Interviews() {
             Track and manage student interviews and schedules
           </p>
         </div>
-        <Button className="bg-gradient-primary hover:shadow-neon transition-all animate-glow-pulse">
-          <Calendar className="mr-2 h-4 w-4" />
-          Schedule Interview
-        </Button>
+        <Dialog open={scheduleInterviewOpen} onOpenChange={setScheduleInterviewOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-primary hover:shadow-neon transition-all animate-glow-pulse">
+              <Plus className="mr-2 h-4 w-4" />
+              Schedule Interview
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl bg-card border-border">
+            <DialogHeader>
+              <DialogTitle>Schedule New Interview</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="studentName">Student Name</Label>
+                  <Input
+                    id="studentName"
+                    value={newInterview.studentName}
+                    onChange={(e) => setNewInterview({...newInterview, studentName: e.target.value})}
+                    placeholder="Enter student name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Company Name</Label>
+                  <Input
+                    id="companyName"
+                    value={newInterview.companyName}
+                    onChange={(e) => setNewInterview({...newInterview, companyName: e.target.value})}
+                    placeholder="Enter company name"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="position">Position</Label>
+                  <Input
+                    id="position"
+                    value={newInterview.position}
+                    onChange={(e) => setNewInterview({...newInterview, position: e.target.value})}
+                    placeholder="Enter position"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="interviewer">Interviewer</Label>
+                  <Input
+                    id="interviewer"
+                    value={newInterview.interviewer}
+                    onChange={(e) => setNewInterview({...newInterview, interviewer: e.target.value})}
+                    placeholder="Enter interviewer name"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="date">Date</Label>
+                  <Input
+                    id="date"
+                    type="date"
+                    value={newInterview.date}
+                    onChange={(e) => setNewInterview({...newInterview, date: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="time">Time</Label>
+                  <Input
+                    id="time"
+                    type="time"
+                    value={newInterview.time}
+                    onChange={(e) => setNewInterview({...newInterview, time: e.target.value})}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="duration">Duration (mins)</Label>
+                  <Input
+                    id="duration"
+                    type="number"
+                    value={newInterview.duration}
+                    onChange={(e) => setNewInterview({...newInterview, duration: e.target.value})}
+                    placeholder="60"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="mode">Mode</Label>
+                  <Select value={newInterview.mode} onValueChange={(value) => setNewInterview({...newInterview, mode: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select mode" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Video Call">Video Call</SelectItem>
+                      <SelectItem value="In-Person">In-Person</SelectItem>
+                      <SelectItem value="Phone Call">Phone Call</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location/Link</Label>
+                  <Input
+                    id="location"
+                    value={newInterview.location}
+                    onChange={(e) => setNewInterview({...newInterview, location: e.target.value})}
+                    placeholder="Enter location or meeting link"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="notes">Notes</Label>
+                <Textarea
+                  id="notes"
+                  value={newInterview.notes}
+                  onChange={(e) => setNewInterview({...newInterview, notes: e.target.value})}
+                  placeholder="Enter any additional notes"
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setScheduleInterviewOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleScheduleInterview} className="bg-gradient-primary">
+                  Schedule Interview
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Quick Stats */}
@@ -263,10 +429,18 @@ export default function Interviews() {
                 <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="hover:shadow-neon transition-all">
-              <Filter className="mr-2 h-4 w-4" />
-              More Filters
-            </Button>
+            <Select value={companyFilter} onValueChange={setCompanyFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by company" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Companies</SelectItem>
+                <SelectItem value="TechCorp Solutions">TechCorp Solutions</SelectItem>
+                <SelectItem value="StartupXYZ">StartupXYZ</SelectItem>
+                <SelectItem value="BigTech Inc">BigTech Inc</SelectItem>
+                <SelectItem value="Innovation Labs">Innovation Labs</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
@@ -380,15 +554,15 @@ export default function Interviews() {
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="bg-card border-border">
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => console.log("Rescheduling interview", interview.id)}>
                         <Calendar className="mr-2 h-4 w-4" />
                         Reschedule
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => console.log("Marking complete", interview.id)}>
                         <CheckCircle className="mr-2 h-4 w-4" />
                         Mark Complete
                       </DropdownMenuItem>
-                      <DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => console.log("Canceling interview", interview.id)}>
                         <XCircle className="mr-2 h-4 w-4" />
                         Cancel
                       </DropdownMenuItem>

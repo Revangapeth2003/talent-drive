@@ -4,6 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +37,8 @@ import {
   MapPin,
   Mail,
   Phone,
-  Award
+  Award,
+  Plus
 } from "lucide-react";
 
 const students = [
@@ -89,6 +99,19 @@ const students = [
 export default function Students() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedStudent, setSelectedStudent] = useState(null);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterCourse, setFilterCourse] = useState("all");
+  const [addStudentOpen, setAddStudentOpen] = useState(false);
+  const [newStudent, setNewStudent] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    course: "",
+    year: "",
+    cgpa: "",
+    location: "",
+    skills: ""
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -99,11 +122,33 @@ export default function Students() {
     }
   };
 
-  const filteredStudents = students.filter(student =>
-    student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    student.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()))
-  );
+  const filteredStudents = students.filter(student => {
+    const matchesSearch = student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.course.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.skills.some(skill => skill.toLowerCase().includes(searchQuery.toLowerCase()));
+    
+    const matchesStatus = filterStatus === "all" || student.status === filterStatus;
+    const matchesCourse = filterCourse === "all" || student.course === filterCourse;
+    
+    return matchesSearch && matchesStatus && matchesCourse;
+  });
+
+  const handleAddStudent = () => {
+    if (newStudent.name && newStudent.email && newStudent.course) {
+      console.log("Adding student:", newStudent);
+      setAddStudentOpen(false);
+      setNewStudent({
+        name: "",
+        email: "",
+        phone: "",
+        course: "",
+        year: "",
+        cgpa: "",
+        location: "",
+        skills: ""
+      });
+    }
+  };
 
   return (
     <div className="flex-1 space-y-6 p-6 animate-fade-in">
@@ -117,10 +162,120 @@ export default function Students() {
             Manage student profiles and placement status
           </p>
         </div>
-        <Button className="bg-gradient-primary hover:shadow-neon transition-all animate-glow-pulse">
-          <GraduationCap className="mr-2 h-4 w-4" />
-          Add Student
-        </Button>
+        <Dialog open={addStudentOpen} onOpenChange={setAddStudentOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-primary hover:shadow-neon transition-all animate-glow-pulse">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Student
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl bg-card border-border">
+            <DialogHeader>
+              <DialogTitle>Add New Student</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Full Name</Label>
+                  <Input
+                    id="name"
+                    value={newStudent.name}
+                    onChange={(e) => setNewStudent({...newStudent, name: e.target.value})}
+                    placeholder="Enter student name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newStudent.email}
+                    onChange={(e) => setNewStudent({...newStudent, email: e.target.value})}
+                    placeholder="Enter email"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={newStudent.phone}
+                    onChange={(e) => setNewStudent({...newStudent, phone: e.target.value})}
+                    placeholder="Enter phone number"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="course">Course</Label>
+                  <Select value={newStudent.course} onValueChange={(value) => setNewStudent({...newStudent, course: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select course" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Computer Science">Computer Science</SelectItem>
+                      <SelectItem value="Information Technology">Information Technology</SelectItem>
+                      <SelectItem value="Electronics">Electronics</SelectItem>
+                      <SelectItem value="Mechanical">Mechanical</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="grid grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="year">Year</Label>
+                  <Select value={newStudent.year} onValueChange={(value) => setNewStudent({...newStudent, year: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select year" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Final Year">Final Year</SelectItem>
+                      <SelectItem value="Pre-Final Year">Pre-Final Year</SelectItem>
+                      <SelectItem value="Third Year">Third Year</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="cgpa">CGPA</Label>
+                  <Input
+                    id="cgpa"
+                    type="number"
+                    step="0.1"
+                    max="10"
+                    value={newStudent.cgpa}
+                    onChange={(e) => setNewStudent({...newStudent, cgpa: e.target.value})}
+                    placeholder="Enter CGPA"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={newStudent.location}
+                    onChange={(e) => setNewStudent({...newStudent, location: e.target.value})}
+                    placeholder="Enter location"
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="skills">Skills (comma separated)</Label>
+                <Textarea
+                  id="skills"
+                  value={newStudent.skills}
+                  onChange={(e) => setNewStudent({...newStudent, skills: e.target.value})}
+                  placeholder="Enter skills separated by commas"
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setAddStudentOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddStudent} className="bg-gradient-primary">
+                  Add Student
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Search and Filters */}
@@ -136,10 +291,29 @@ export default function Students() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline" className="hover:shadow-neon transition-all">
-              <Filter className="mr-2 h-4 w-4" />
-              Filters
-            </Button>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="available">Available</SelectItem>
+                <SelectItem value="placed">Placed</SelectItem>
+                <SelectItem value="interviewing">Interviewing</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterCourse} onValueChange={setFilterCourse}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by course" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Courses</SelectItem>
+                <SelectItem value="Computer Science">Computer Science</SelectItem>
+                <SelectItem value="Information Technology">Information Technology</SelectItem>
+                <SelectItem value="Electronics">Electronics</SelectItem>
+                <SelectItem value="Mechanical">Mechanical</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>

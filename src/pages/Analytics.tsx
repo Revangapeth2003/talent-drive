@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -16,7 +17,6 @@ import {
   Trophy,
   Target,
   Calendar,
-  Download,
   Filter
 } from "lucide-react";
 
@@ -47,6 +47,8 @@ const analyticsData = {
 };
 
 export default function Analytics() {
+  const [selectedYear, setSelectedYear] = useState("2024");
+  const [departmentFilter, setDepartmentFilter] = useState("all");
   return (
     <div className="flex-1 space-y-6 p-6 animate-fade-in">
       {/* Header */}
@@ -60,7 +62,7 @@ export default function Analytics() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Select defaultValue="2024">
+          <Select value={selectedYear} onValueChange={setSelectedYear}>
             <SelectTrigger className="w-32">
               <SelectValue placeholder="Year" />
             </SelectTrigger>
@@ -70,14 +72,18 @@ export default function Analytics() {
               <SelectItem value="2022">2022-23</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" className="hover:shadow-neon transition-all">
-            <Filter className="mr-2 h-4 w-4" />
-            Filters
-          </Button>
-          <Button className="bg-gradient-primary hover:shadow-neon transition-all animate-glow-pulse">
-            <Download className="mr-2 h-4 w-4" />
-            Export Report
-          </Button>
+          <Select value={departmentFilter} onValueChange={setDepartmentFilter}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Filter by department" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Departments</SelectItem>
+              <SelectItem value="Computer Science">Computer Science</SelectItem>
+              <SelectItem value="Information Technology">Information Technology</SelectItem>
+              <SelectItem value="Electronics">Electronics</SelectItem>
+              <SelectItem value="Mechanical">Mechanical</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 

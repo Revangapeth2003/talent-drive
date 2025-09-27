@@ -4,6 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,7 +37,8 @@ import {
   Mail,
   Users,
   Briefcase,
-  TrendingUp
+  TrendingUp,
+  Plus
 } from "lucide-react";
 
 const recruiters = [
@@ -100,6 +110,19 @@ const recruiters = [
 
 export default function Recruiters() {
   const [searchQuery, setSearchQuery] = useState("");
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filterIndustry, setFilterIndustry] = useState("all");
+  const [addRecruiterOpen, setAddRecruiterOpen] = useState(false);
+  const [newRecruiter, setNewRecruiter] = useState({
+    companyName: "",
+    contactPerson: "",
+    email: "",
+    phone: "",
+    location: "",
+    industry: "",
+    companySize: "",
+    description: ""
+  });
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -110,11 +133,33 @@ export default function Recruiters() {
     }
   };
 
-  const filteredRecruiters = recruiters.filter(recruiter =>
-    recruiter.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    recruiter.industry.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    recruiter.location.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredRecruiters = recruiters.filter(recruiter => {
+    const matchesSearch = recruiter.companyName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recruiter.industry.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      recruiter.location.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = filterStatus === "all" || recruiter.status === filterStatus;
+    const matchesIndustry = filterIndustry === "all" || recruiter.industry === filterIndustry;
+    
+    return matchesSearch && matchesStatus && matchesIndustry;
+  });
+
+  const handleAddRecruiter = () => {
+    if (newRecruiter.companyName && newRecruiter.email && newRecruiter.contactPerson) {
+      console.log("Adding recruiter:", newRecruiter);
+      setAddRecruiterOpen(false);
+      setNewRecruiter({
+        companyName: "",
+        contactPerson: "",
+        email: "",
+        phone: "",
+        location: "",
+        industry: "",
+        companySize: "",
+        description: ""
+      });
+    }
+  };
 
   return (
     <div className="flex-1 space-y-6 p-6 animate-fade-in">
@@ -128,10 +173,120 @@ export default function Recruiters() {
             Manage partner companies and recruitment relationships
           </p>
         </div>
-        <Button className="bg-gradient-primary hover:shadow-neon transition-all animate-glow-pulse">
-          <Building2 className="mr-2 h-4 w-4" />
-          Add Recruiter
-        </Button>
+        <Dialog open={addRecruiterOpen} onOpenChange={setAddRecruiterOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-gradient-primary hover:shadow-neon transition-all animate-glow-pulse">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Recruiter
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-2xl bg-card border-border">
+            <DialogHeader>
+              <DialogTitle>Add New Recruiter</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="companyName">Company Name</Label>
+                  <Input
+                    id="companyName"
+                    value={newRecruiter.companyName}
+                    onChange={(e) => setNewRecruiter({...newRecruiter, companyName: e.target.value})}
+                    placeholder="Enter company name"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="contactPerson">Contact Person</Label>
+                  <Input
+                    id="contactPerson"
+                    value={newRecruiter.contactPerson}
+                    onChange={(e) => setNewRecruiter({...newRecruiter, contactPerson: e.target.value})}
+                    placeholder="Enter contact person name"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={newRecruiter.email}
+                    onChange={(e) => setNewRecruiter({...newRecruiter, email: e.target.value})}
+                    placeholder="Enter email"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone</Label>
+                  <Input
+                    id="phone"
+                    value={newRecruiter.phone}
+                    onChange={(e) => setNewRecruiter({...newRecruiter, phone: e.target.value})}
+                    placeholder="Enter phone number"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="location">Location</Label>
+                  <Input
+                    id="location"
+                    value={newRecruiter.location}
+                    onChange={(e) => setNewRecruiter({...newRecruiter, location: e.target.value})}
+                    placeholder="Enter location"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="industry">Industry</Label>
+                  <Select value={newRecruiter.industry} onValueChange={(value) => setNewRecruiter({...newRecruiter, industry: value})}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select industry" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="Technology">Technology</SelectItem>
+                      <SelectItem value="Fintech">Fintech</SelectItem>
+                      <SelectItem value="Software">Software</SelectItem>
+                      <SelectItem value="Research">Research</SelectItem>
+                      <SelectItem value="Consulting">Consulting</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="companySize">Company Size</Label>
+                <Select value={newRecruiter.companySize} onValueChange={(value) => setNewRecruiter({...newRecruiter, companySize: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select company size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1-50">1-50 employees</SelectItem>
+                    <SelectItem value="50-100">50-100 employees</SelectItem>
+                    <SelectItem value="100-500">100-500 employees</SelectItem>
+                    <SelectItem value="500-1000">500-1000 employees</SelectItem>
+                    <SelectItem value="1000+">1000+ employees</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Company Description</Label>
+                <Textarea
+                  id="description"
+                  value={newRecruiter.description}
+                  onChange={(e) => setNewRecruiter({...newRecruiter, description: e.target.value})}
+                  placeholder="Enter company description"
+                />
+              </div>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" onClick={() => setAddRecruiterOpen(false)}>
+                  Cancel
+                </Button>
+                <Button onClick={handleAddRecruiter} className="bg-gradient-primary">
+                  Add Recruiter
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* Search and Filters */}
@@ -147,10 +302,29 @@ export default function Recruiters() {
                 className="pl-10"
               />
             </div>
-            <Button variant="outline" className="hover:shadow-neon transition-all">
-              <Filter className="mr-2 h-4 w-4" />
-              Filters
-            </Button>
+            <Select value={filterStatus} onValueChange={setFilterStatus}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Status</SelectItem>
+                <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="premium">Premium</SelectItem>
+                <SelectItem value="new">New</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={filterIndustry} onValueChange={setFilterIndustry}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Filter by industry" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Industries</SelectItem>
+                <SelectItem value="Technology">Technology</SelectItem>
+                <SelectItem value="Fintech">Fintech</SelectItem>
+                <SelectItem value="Software">Software</SelectItem>
+                <SelectItem value="Research">Research</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>

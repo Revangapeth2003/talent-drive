@@ -34,7 +34,6 @@ const roleBasedNavigation = {
     { title: "Interviews", url: "/interviews", icon: Calendar },
     { title: "Analytics", url: "/analytics", icon: BarChart3 },
     { title: "Placements", url: "/placements", icon: Trophy },
-    { title: "Settings", url: "/settings", icon: Settings },
   ],
   placement_officer: [
     { title: "Dashboard", url: "/", icon: LayoutDashboard },
