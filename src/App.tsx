@@ -41,7 +41,7 @@ const App = () => (
                     <SidebarTrigger className="animate-glow-pulse" />
                     <div className="h-8 w-px bg-border" />
                     <h2 className="font-semibold text-lg bg-gradient-primary bg-clip-text text-transparent">
-                      Placement CRM
+                      Settlo Placement CRM
                     </h2>
                   </div>
                   
