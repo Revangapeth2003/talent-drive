@@ -83,7 +83,7 @@ export function AppSidebar() {
       <SidebarContent className="bg-transparent">
         <SidebarGroup className="animate-fade-in">
           <SidebarGroupLabel className={`text-primary font-bold ${isCollapsed ? "hidden" : ""}`}>
-            PlacementCRM
+           Settlo PlacementCRM
           </SidebarGroupLabel>
 
           <SidebarGroupContent>
